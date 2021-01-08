@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 
@@ -9,11 +10,11 @@ import (
 )
 
 // ListUsers returns all users from db
-func ListUsers(pgRepo users.Repository) fiber.Handler {
+func ListUsers(ctx context.Context, usecase users.UseCase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		page, _ := strconv.Atoi(c.Params("page"))
 		limit, _ := strconv.Atoi(c.Params("limit"))
-		users, err := pgRepo.List(page, limit)
+		users, err := usecase.List(ctx, page, limit)
 		if err != nil {
 			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 				"error": fiber.Map{
@@ -27,11 +28,10 @@ func ListUsers(pgRepo users.Repository) fiber.Handler {
 }
 
 // GetUser returns information about a user
-func GetUser(pgRepo users.Repository) fiber.Handler {
+func GetUser(ctx context.Context, usecase users.UseCase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, _ := strconv.Atoi(c.Params("id"))
-
-		user, err := pgRepo.Get(id)
+		user, err := usecase.Get(ctx, id)
 		if err != nil {
 			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 				"error": fiber.Map{
@@ -52,7 +52,7 @@ func GetUser(pgRepo users.Repository) fiber.Handler {
 }
 
 // CreateUser creates new user record
-func CreateUser(pgRepo users.Repository) fiber.Handler {
+func CreateUser(ctx context.Context, usecase users.UseCase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		user := new(users.User)
 		if err := c.BodyParser(user); err != nil {
@@ -64,7 +64,7 @@ func CreateUser(pgRepo users.Repository) fiber.Handler {
 				},
 			})
 		}
-		u, err := pgRepo.Create(user)
+		u, err := usecase.Create(ctx, user)
 		if err != nil {
 			return fiber.NewError(000, "An error occured while creating record")
 		}
@@ -73,7 +73,7 @@ func CreateUser(pgRepo users.Repository) fiber.Handler {
 }
 
 // UpdateUser updates a user record
-func UpdateUser(pgRepo users.Repository) fiber.Handler {
+func UpdateUser(ctx context.Context, usecase users.UseCase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, _ := strconv.Atoi(c.Params("id"))
 		editUser := new(users.User)
@@ -88,7 +88,7 @@ func UpdateUser(pgRepo users.Repository) fiber.Handler {
 			})
 		}
 
-		u, err := pgRepo.Update(id, editUser)
+		u, err := usecase.Update(ctx, id, editUser)
 		if err != nil {
 			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 				"error": fiber.Map{
@@ -102,10 +102,10 @@ func UpdateUser(pgRepo users.Repository) fiber.Handler {
 }
 
 // DeleteUser deletes a use
-func DeleteUser(pgRepo users.Repository) fiber.Handler {
+func DeleteUser(ctx context.Context, usecase users.UseCase) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, _ := strconv.Atoi(c.Params("id"))
-		res, err := pgRepo.Delete(id)
+		res, err := usecase.Delete(ctx, id)
 		if err != nil {
 			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 				"error": fiber.Map{

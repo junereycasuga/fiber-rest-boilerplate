@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"context"
+
 	"github.com/conflux-tech/fiber-rest-boilerplate/handlers"
 	"github.com/conflux-tech/fiber-rest-boilerplate/users"
 	"github.com/gofiber/fiber/v2"
@@ -12,10 +14,10 @@ func RegisterRoot(route fiber.Router) {
 }
 
 // RegisterUsers registers all available routes for /user
-func RegisterUsers(route fiber.Router, pgRepo users.Repository) {
-	route.Get("/", handlers.ListUsers(pgRepo))
-	route.Get("/:id", handlers.GetUser(pgRepo))
-	route.Post("/", handlers.CreateUser(pgRepo))
-	route.Patch("/:id", handlers.UpdateUser(pgRepo))
-	route.Delete("/:id", handlers.DeleteUser(pgRepo))
+func RegisterUsers(ctx context.Context, route fiber.Router, usecase users.UseCase) {
+	route.Get("/", handlers.ListUsers(ctx, usecase))
+	route.Get("/:id", handlers.GetUser(ctx, usecase))
+	route.Post("/", handlers.CreateUser(ctx, usecase))
+	route.Patch("/:id", handlers.UpdateUser(ctx, usecase))
+	route.Delete("/:id", handlers.DeleteUser(ctx, usecase))
 }

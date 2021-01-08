@@ -48,9 +48,11 @@ func (r *PGRepository) Get(id int) (*User, error) {
 
 // Update func updates the user record
 func (r *PGRepository) Update(id int, user *User) (*User, error) {
-	u := User{
-		Name: user.Name,
-	}
+	u := User{ID: uint(id)}
+	r.DB.First(&u)
+
+	u.Name = user.Name
+
 	if res := r.DB.Save(&u); res.Error != nil {
 		return &User{}, res.Error
 	}

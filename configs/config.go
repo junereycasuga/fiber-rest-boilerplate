@@ -10,6 +10,7 @@ import (
 type Configuration struct {
 	Application AppConfig
 	Database    DBConfig
+	Redis       RedisConfig
 }
 
 var cfg *Configuration
@@ -29,6 +30,9 @@ func Load() (config Configuration, err error) {
 	// Load Database Configs
 	dbConfig, _ := loadDBConfig()
 	config.Database = dbConfig
+
+	redisConfig, _ := loadRedisConfig()
+	config.Redis = redisConfig
 
 	cfg = &config
 

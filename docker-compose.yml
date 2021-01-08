@@ -12,6 +12,7 @@ services:
     container_name: fiber_rest_api
     depends_on:
       - postgres
+      - redis
     working_dir: /app
     environment:
       - APP_ENV=development
@@ -20,6 +21,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=password
       - DB_DATABASE=fiber_rest
+      - REDIS_HOST=redis:6379
     volumes:
       - ./:/app
     ports:
@@ -28,7 +30,7 @@ services:
       - web
 
   postgres:
-    image: postgres:alpine
+    image: postgres:13.1-alpine
     container_name: fiber_rest_pg
     ports:
       - '5432:5432'
@@ -36,5 +38,14 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: fiber_rest
+    networks:
+      - web
+
+  redis:
+    image: redis:6.0-alpine
+    container_name: fiber_rest_redis
+    restart: always
+    ports:
+      - 6379
     networks:
       - web
